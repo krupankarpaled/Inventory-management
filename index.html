@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Water Bottle Inventory Management</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f4;
+    }
+    
+    h1, h2, h3 {
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #eee;
+    }
+    
+    .search-bar {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    
+    .search-bar input {
+      flex-grow: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    .search-bar button {
+      margin-left: 10px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    
+    th, td {
+      padding: 12px;
+      text-align: left;
+    }
+    
+    th {
+      background-color: #f2f2f2;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+    
+    .delete-btn {
+      background-color: #f44336;
+    }
+    
+    .delete-btn:hover {
+      background-color: #d32f2f;
+    }
+    
+    .edit-btn {
+      background-color: #2196F3;
+      margin-right: 5px;
+    }
+    
+    .edit-btn:hover {
+      background-color: #0b7dda;
+    }
+    
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      background-color: #f8f8f8;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    
+    .summary div {
+      text-align: center;
+    }
+    
+    .summary h3 {
+      margin: 0;
+      color: #555;
+    }
+    
+    .summary p {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 5px 0;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+    }
+    
+    .modal-content {
+      background-color: #fefefe;
+      margin: 10% auto;
+      padding: 20px;
+      border-radius: 5px;
+      width: 50%;
+      box-shadow: 0 5px 8px rgba(0,0,0,0.2);
+    }
+    
+    .close-modal {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .close-modal:hover {
+      color: black;
+    }
+    
+    .report-section {
+      background-color: #f8f8f8;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+      color: #777;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .modal-content {
+        width: 80%;
+      }
+      
+      .actions {
+        flex-direction: column;
+      }
+      
+      .summary {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Water Bottle Inventory Management</h1>
+      <div class="actions">
+        <button id="addDemoData">Add Demo Data</button>
+        <button id="lowStockReport">Low Stock Report</button>
+        <button id="exportInventory">Export Inventory</button>
+      </div>
+    </div>
+    
+    <div class="summary">
+      <div>
+        <h3>Total Items</h3>
+        <p id="itemCount">0</p>
+      </div>
+      <div>
+        <h3>Total Inventory Value</h3>
+        <p id="totalValue">$0.00</p>
+      </div>
+    </div>
+    
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search water bottles...">
+      <button id="clearSearch">Clear</button>
+    </div>
+    
+    <div class="inventory-list">
+      <h2>Current Inventory</h2>
+      <table id="inventoryTable">
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Value</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryBody">
+          <tr>
+            <td colspan="5" class="text-center">No water bottles in inventory</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="add-item">
+      <h2>Add New Water Bottle</h2>
+      <form id="addItemForm">
+        <div class="form-group">
+          <label for="productName">Product Name:</label>
+          <input type="text" id="productName" required placeholder="e.g. Stainless Steel Water Bottle 20oz">
+        </div>
+        
+        <div class="form-group">
+          <label for="quantity">Quantity:</label>
+          <input type="number" id="quantity" required min="1" placeholder="e.g. 50">
+        </div>
+        
+        <div class="form-group">
+          <label for="price">Price (Per Unit):</label>
+          <input type="number" id="price" required min="0.01" step="0.01" placeholder="e.g. 19.99">
+        </div>
+        
+        <button type="submit">Add to Inventory</button>
+      </form>
+    </div>
+    
+    <div class="report-section">
+      <h2>Reports</h2>
+      <div id="reportOutput"></div>
+    </div>
+  </div>
+  
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2>Edit Water Bottle</h2>
+      <form id="editItemForm">
+        <input type="hidden" id="editId">
+        
+        <div class="form-group">
+          <label for="editName">Product Name:</label>
+          <input type="text" id="editName" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editQuantity">Quantity:</label>
+          <input type="number" id="editQuantity" required min="1">
+        </div>
+        
+        <div class="form-group">
+          <label for="editPrice">Price (Per Unit):</label>
+          <input type="number" id="editPrice" required min="0.01" step="0.01">
+        </div>
+        
+        <button type="submit">Update Item</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Water Bottle Inventory Management System</p>
+  </footer>
+
+  <script src="inventory.js"></script>
+</body>
+</html>
